@@ -22,5 +22,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/weather/{city}/{country}', [WeatherController::class, 'getWeather']);
 
+
 Route::get('/countries', [LocationController::class, 'getCountries']);
 Route::get('/cities/{countryId}', [LocationController::class, 'getCitiesByCountry']);

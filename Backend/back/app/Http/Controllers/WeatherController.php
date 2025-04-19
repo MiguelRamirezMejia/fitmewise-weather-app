@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Helpers\RoutineHelper;
 use App\Models\RoutineRecommendation;
 
@@ -9,6 +10,9 @@ class WeatherController extends Controller
 {
     public function getWeather($city, $countryCode)
     {
+        // Verificar los parámetros antes de realizar la solicitud
+        Log::info('Ciudad: ' . $city . ', País: ' . $countryCode);
+
         $apiKey = config('services.openweather.key');
         $query = "{$city},{$countryCode}";
 
@@ -22,19 +26,36 @@ class WeatherController extends Controller
 
         // Si la solicitud falla
         if ($response->failed()) {
+            Log::error('Error al obtener datos del clima: ' . $response->body());
             return response()->json([
                 'error' => 'No se pudo obtener el clima',
+                'message' => $response->body(),
             ], 400);
         }
 
         // Obtener los datos
         $data = $response->json();
 
-        // Datos del clima actual
-        $weather = $data['list'][0]['weather'][0]['main'];
-        $temp = $data['list'][0]['main']['temp'];
-        $icon = $data['list'][0]['weather'][0]['icon'];
-        $iconUrl = "http://openweathermap.org/img/wn/{$icon}.png";
+        // Verificar si la respuesta contiene los datos esperados
+        if (!isset($data['list'][0])) {
+            return response()->json([
+                'error' => 'No se encontraron datos del clima en la respuesta',
+                'response' => $data, // Devolver la respuesta completa para depuración
+            ], 400);
+        }
+
+        // Extraer datos del clima actual
+        try {
+            $weather = $data['list'][0]['weather'][0]['main'];
+            $temp = $data['list'][0]['main']['temp'];
+            $icon = $data['list'][0]['weather'][0]['icon'];
+            $iconUrl = "http://openweathermap.org/img/wn/{$icon}.png";
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Datos del clima no disponibles',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
 
         // Convertir la temperatura actual a Fahrenheit
         $tempFahrenheit = $this->celsiusToFahrenheit($temp);
