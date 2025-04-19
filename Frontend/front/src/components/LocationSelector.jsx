@@ -25,9 +25,11 @@ const LocationSelector = ({ onSelect }) => {
 
   useEffect(() => {
     if (selectedCity && selectedCountry) {
-      onSelect(selectedCountry, selectedCity);  // Enviar los IDs seleccionados al componente principal
+      onSelect(selectedCountry, selectedCity);
     }
-  }, [selectedCity, selectedCountry, onSelect]);
+    // No incluyas onSelect si no es una función que cambia cada vez
+  }, [selectedCity, selectedCountry]);
+  
 
   return (
     <div className="p-4">
