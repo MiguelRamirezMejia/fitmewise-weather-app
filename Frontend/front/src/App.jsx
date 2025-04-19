@@ -12,10 +12,10 @@ const App = () => {
   const fetchWeatherData = async (countryId, cityId) => {
     setLoading(true);
     setError(null);
-
+  
     try {
-      // Llamada a la API de clima usando los parámetros de país y ciudad
-      const response = await axios.get(`http://localhost:8000/api/weather/${countryId}/${cityId}`);
+      const response = await axios.get(`http://localhost:8000/api/weather/${cityId}/${countryId}`);
+      console.log("Datos obtenidos de la API:", response.data);  // Verifica los datos que devuelve la API
       setWeatherData(response.data);  // Guardar los datos del clima en el estado
     } catch (err) {
       setError('No se pudo obtener el clima.');
@@ -24,6 +24,7 @@ const App = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
