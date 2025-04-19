@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
@@ -17,7 +16,7 @@ class WeatherController extends Controller
         $response = Http::get("https://api.openweathermap.org/data/2.5/forecast", [
             'q' => $query,
             'appid' => $apiKey,
-            'units' => 'metric',
+            'units' => 'metric', // Solicitar en unidades métricas (Celsius)
             'lang' => 'es',
         ]);
 
@@ -37,15 +36,22 @@ class WeatherController extends Controller
         $icon = $data['list'][0]['weather'][0]['icon'];
         $iconUrl = "http://openweathermap.org/img/wn/{$icon}.png";
 
+        // Convertir la temperatura actual a Fahrenheit
+        $tempFahrenheit = $this->celsiusToFahrenheit($temp);
+
         // Obtener pronóstico de los próximos 5 días
         $forecast = [];
         for ($i = 1; $i <= 5; $i++) {
             $index = ($i * 8) - 1;
             if (isset($data['list'][$index])) {
                 $entry = $data['list'][$index];
+                $entryTemp = $entry['main']['temp'];
+                $entryTempFahrenheit = $this->celsiusToFahrenheit($entryTemp); // Convertir a Fahrenheit
+
                 $forecast[] = [
                     'fecha' => $entry['dt_txt'],
-                    'temperatura' => $entry['main']['temp'] . " °C",
+                    'temperatura' => $entryTemp . " °C",
+                    'temperatura_fahrenheit' => round($entryTempFahrenheit, 2) . " °F", // Incluir Fahrenheit
                     'estado' => $entry['weather'][0]['main'],
                     'icono' => "http://openweathermap.org/img/wn/" . $entry['weather'][0]['icon'] . ".png",
                     'recomendacion' => $this->getRoutineRecommendation($entry['weather'][0]['main']),
@@ -58,6 +64,7 @@ class WeatherController extends Controller
             'ciudad' => $city,
             'pais' => strtoupper($countryCode),
             'temperatura_actual' => $temp . " °C",
+            'temperatura_actual_fahrenheit' => round($tempFahrenheit, 2) . " °F", // Incluir Fahrenheit
             'estado_actual' => $weather,
             'icono_actual' => $iconUrl,
             'recomendacion_actual' => $this->getRoutineRecommendation($weather),
@@ -73,5 +80,11 @@ class WeatherController extends Controller
         
         // Si existe una recomendación en la base de datos, la usamos; si no, usamos la del helper
         return $entry?->recommendation ?? RoutineHelper::getRecommendation($weather);
+    }
+
+    // Función para convertir Celsius a Fahrenheit
+    private function celsiusToFahrenheit($celsius)
+    {
+        return ($celsius * 9/5) + 32;
     }
 }
