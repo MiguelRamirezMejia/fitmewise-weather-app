@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
+use App\Helpers\RoutineHelper;
 
 class WeatherController extends Controller
 {
-    public function getWeather($city)
+    public function getWeather($city, $countryCode)
     {
         $apiKey = config('services.openweather.key');
+        $query = "{$city},{$countryCode}";
 
-        $response = Http::get("https://api.openweathermap.org/data/2.5/weather", [
-            'q' => $city,
+        $response = Http::get("https://api.openweathermap.org/data/2.5/forecast", [
+            'q' => $query,
             'appid' => $apiKey,
-            'units' => 'metric', // Para que dé la temperatura en °C
-            'lang' => 'es',      // Puedes usar 'en' si prefieres en inglés
+            'units' => 'metric',
+            'lang' => 'es',
         ]);
 
         if ($response->failed()) {
@@ -25,25 +27,34 @@ class WeatherController extends Controller
 
         $data = $response->json();
 
-        $weather = $data['weather'][0]['main'];
-        $temp = $data['main']['temp'];
+        $weather = $data['list'][0]['weather'][0]['main'];
+        $temp = $data['list'][0]['main']['temp'];
+        $icon = $data['list'][0]['weather'][0]['icon'];
+        $iconUrl = "http://openweathermap.org/img/wn/{$icon}.png";
+
+        $forecast = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $index = ($i * 8) - 1;
+            if (isset($data['list'][$index])) {
+                $entry = $data['list'][$index];
+                $forecast[] = [
+                    'fecha' => $entry['dt_txt'],
+                    'temperatura' => $entry['main']['temp'] . " °C",
+                    'estado' => $entry['weather'][0]['main'],
+                    'icono' => "http://openweathermap.org/img/wn/" . $entry['weather'][0]['icon'] . ".png",
+                    'recomendacion' => RoutineHelper::getRecommendation($entry['weather'][0]['main']),
+                ];
+            }
+        }
 
         return response()->json([
             'ciudad' => $city,
-            'temperatura' => $temp . " °C",
-            'estado' => $weather,
-            'recomendacion' => $this->getRoutineRecommendation($weather)
+            'pais' => strtoupper($countryCode),
+            'temperatura_actual' => $temp . " °C",
+            'estado_actual' => $weather,
+            'icono_actual' => $iconUrl,
+            'recomendacion_actual' => RoutineHelper::getRecommendation($weather),
+            'pronostico_5_dias' => $forecast,
         ]);
-    }
-
-    private function getRoutineRecommendation($weather)
-    {
-        return match(strtolower($weather)) {
-            'clear' => 'Ideal para salir a correr al aire libre.',
-            'clouds' => 'Perfecto para una caminata tranquila.',
-            'rain' => 'Mejor hacer una rutina indoor, como yoga o ejercicios de fuerza.',
-            'snow' => 'Haz cardio suave dentro de casa.',
-            default => 'Haz lo que puedas en casa, ¡mantente activo!',
-        };
     }
 }
