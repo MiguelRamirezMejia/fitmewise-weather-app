@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB; // Asegúrate de importar DB
+use App\Models\RoutineRecommendation;
+use App\Models\Country;
+use App\Models\City;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,11 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // Deshabilitar las verificaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Truncar las tablas
+        RoutineRecommendation::truncate();
+        Country::truncate();
+        City::truncate();
+
+        // Habilitar las verificaciones de claves foráneas nuevamente
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // Ejecutar los seeders
+        $this->call([
+            RoutineRecommendationSeeder::class,
+            CountrySeeder::class,
+            CitySeeder::class,
+        ]);
     }
 }
