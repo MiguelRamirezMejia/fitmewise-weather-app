@@ -1,76 +1,84 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
 
 const BASE_URL = "http://localhost:8000/api";
 
 const LocationSelector = ({ onSelect }) => {
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
 
-  // Cargar países al montar
   useEffect(() => {
     axios.get(`${BASE_URL}/countries`)
-      .then(response => setCountries(response.data))
-      .catch(error => console.error('Error cargando países:', error));
+      .then((res) => setCountries(res.data))
+      .catch((err) => console.error('Error cargando países:', err));
   }, []);
 
-  // Cargar ciudades al cambiar país
   useEffect(() => {
-    if (selectedCountry) {
-      axios.get(`${BASE_URL}/cities/${selectedCountry}`)
-        .then(response => setCities(response.data))
-        .catch(error => console.error('Error cargando ciudades:', error));
-    } else {
+    if (!selectedCountry) {
       setCities([]);
+      setSelectedCity(null);
+      return;
     }
+
+    setSelectedCity(null);
+    axios.get(`${BASE_URL}/cities/${selectedCountry.value}`)
+      .then((res) => setCities(res.data || []))
+      .catch((err) => {
+        console.error('Error cargando ciudades:', err);
+        setCities([]);
+      });
   }, [selectedCountry]);
 
-  // Llamar a onSelect solo cuando se tiene una ciudad y país válidos
   useEffect(() => {
-    // Evitar ejecutar si aún no se han cargado los datos necesarios
-    if (!selectedCountry || !selectedCity || countries.length === 0 || cities.length === 0) return;
-
-    const country = countries.find(c => c.id === Number(selectedCountry));
-    const city = cities.find(c => c.id === Number(selectedCity));
-
-    if (country && city) {
-      onSelect(country.code, city.name);
+    if (selectedCountry && selectedCity) {
+      onSelect(selectedCountry.code, selectedCity.label);
     }
-  }, [selectedCountry, selectedCity]); // 🔥 Solo dependencias necesarias
+  }, [selectedCity]);
+
+  const countryOptions = useMemo(() =>
+    countries.map((c) => ({
+      value: c.id,
+      label: c.name,
+      code: c.code,
+    })), [countries]);
+
+  const cityOptions = useMemo(() =>
+    cities.map((c) => ({
+      value: c.id,
+      label: c.name,
+    })), [cities]);
 
   return (
-    <div className="p-4 bg-white rounded shadow-md w-full max-w-md">
+    <div className="p-4 bg-white rounded shadow-md w-full max-w-md mx-auto">
       <label className="block mb-2 font-bold">País</label>
-      <select
-        className="border p-2 w-full mb-4"
+      <Select
+        options={countryOptions}
         value={selectedCountry}
-        onChange={(e) => {
-          setSelectedCountry(e.target.value);
-          setSelectedCity('');
-        }}
-      >
-        <option value="">-- Selecciona un país --</option>
-        {countries.map((country) => (
-          <option key={country.id} value={country.id}>{country.name}</option>
-        ))}
-      </select>
+        onChange={setSelectedCountry}
+        placeholder="Selecciona un país"
+        className="mb-4"
+        isSearchable
+      />
 
       <label className="block mb-2 font-bold">Ciudad</label>
-      <select
-        className="border p-2 w-full"
+      <Select
+        options={cityOptions}
         value={selectedCity}
-        onChange={(e) => setSelectedCity(e.target.value)}
-        disabled={!selectedCountry}
-      >
-        <option value="">-- Selecciona una ciudad --</option>
-        {cities.map((city) => (
-          <option key={city.id} value={city.id}>{city.name}</option>
-        ))}
-      </select>
+        onChange={setSelectedCity}
+        placeholder="Selecciona una ciudad"
+        isDisabled={!selectedCountry}
+        noOptionsMessage={() =>
+          !selectedCountry
+            ? 'Selecciona un país primero'
+            : 'No hay ciudades disponibles'
+        }
+        isSearchable
+      />
     </div>
   );
 };
 
-export default LocationSelector;
+export default React.memo(LocationSelector);
