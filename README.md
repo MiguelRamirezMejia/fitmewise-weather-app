@@ -1,6 +1,6 @@
 # 🌦️ Prueba Fitmewise - Clima
 
-Este proyecto consiste en una aplicación full stack desarrollada con **Laravel** en el backend y **React con Redux** en el frontend. Permite al usuario seleccionar un país y una ciudad a través de un componente estilizado, y una vez seleccionada la ciudad, se obtiene la información del clima actual y los próximos 5 días usando la API de **OpenWeatherMap**. También se sugiere una rutina de ejercicios basada en el estado climático.
+Este proyecto consiste en una aplicación full stack desarrollada con **Laravel** en el backend y **React con Redux** en el frontend. Permite al usuario seleccionar un país y una ciudad a través de un componente estilizado, el Select de la ciudad se hereda del Select de país y una vez seleccionada la ciudad, se obtiene la información del clima actual y los próximos 5 días usando la API de **OpenWeatherMap**. También se sugiere una rutina de ejercicios basada en el estado climático.
 
 ## 🛠️ Tecnologías Utilizadas
 
