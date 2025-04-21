@@ -1,73 +1,56 @@
-
-// import React, { useState } from 'react';
-// import LocationSelector from './components/LocationSelector';
-// import WeatherResult from './components/WeatherResult';
-// import axios from 'axios';
-
-// const App = () => {
-//   const [weatherData, setWeatherData] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-
-//   const fetchWeatherData = async (countryId, cityId) => {
-//     setLoading(true);
-//     setError(null);
-  
-//     try {
-//       const response = await axios.get(`http://localhost:8000/api/weather/${cityId}/${countryId}`);
-//       console.log("Datos obtenidos de la API:", response.data);  // Verifica los datos que devuelve la API
-//       setWeatherData(response.data);  // Guardar los datos del clima en el estado
-//     } catch (err) {
-//       setError('No se pudo obtener el clima.');
-//       console.error(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-  
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-//       <LocationSelector onSelect={fetchWeatherData} />
-      
-//       {loading && <p>Cargando...</p>}
-//       {error && <p className="text-red-500">{error}</p>}
-//       {weatherData && <WeatherResult data={weatherData} />}
-//     </div>
-//   );
-// };
-
-// export default App;
-
 // src/App.jsx
 
-import React, { useEffect } from 'react';
-import LocationSelector from './components/LocationSelector';
-import WeatherResult from './components/WeatherResult';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchWeather } from './redux/weather/weatherSlice'; // Importar el thunk de Redux
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import LocationSelector from "./components/LocationSelector";
+import WeatherResult from "./components/WeatherResult";
+import Sidebar from "./components/sidebar";
+import { fetchWeather } from "./redux/weather/weatherSlice";
 
 const App = () => {
+  const [isOpen, setIsOpen] = useState(true); // Control del sidebar
   const dispatch = useDispatch();
   const weather = useSelector((state) => state.weather);
 
   const handleSelect = (city, countryCode) => {
-    dispatch(fetchWeather({ city, countryCode }));  // Llamar al thunk
+    dispatch(fetchWeather({ city, countryCode }));
   };
 
   return (
-    <div className="App">
-      <h1 className="text-center text-2xl">Consulta el clima</h1>
-      <LocationSelector onSelect={handleSelect} />
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Botón flotante para abrir el Sidebar si está cerrado */}
+      {!isOpen && (
+  <button
+    onClick={() => setIsOpen(true)}
+    className="fixed top-4 left-4 z-40 bg-blue-600 text-white px-3 py-2 rounded shadow"
+  >
+    ☰
+  </button>
+)}
 
-      {/* Mostrar el estado de carga */}
-      {weather.status === 'loading' && <p>Cargando clima...</p>}
+  
 
-      {/* Mostrar error si existe */}
-      {weather.status === 'failed' && <p>Error: {weather.error}</p>}
+      {/* Sidebar */}
+      <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
-      {/* Mostrar los resultados si están disponibles */}
-      {weather.status === 'succeeded' && <WeatherResult data={weather.current} />}
+      {/* Contenido principal */}
+      <div
+  className={`flex-1 transition-all duration-300 ${
+    isOpen ? "ml-64" : "ml-0 pl-20"
+  } p-6`}
+>
+
+        <h1 className="text-2xl font-bold mb-4 text-center">Consulta el clima</h1>
+        <LocationSelector onSelect={handleSelect} />
+
+        {weather.status === "loading" && <p>Cargando clima...</p>}
+        {weather.status === "failed" && (
+          <p className="text-red-500">Error: {weather.error}</p>
+        )}
+        {weather.status === "succeeded" && (
+          <WeatherResult data={weather.current} />
+        )}
+      </div>
     </div>
   );
 };

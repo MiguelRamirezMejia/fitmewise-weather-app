@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 
@@ -10,12 +10,18 @@ const LocationSelector = ({ onSelect }) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
 
+  // Obtener países
   useEffect(() => {
     axios.get(`${BASE_URL}/countries`)
-      .then((res) => setCountries(res.data))
-      .catch((err) => console.error('Error cargando países:', err));
+      .then((response) => {
+        setCountries(response.data);
+      })
+      .catch((error) => {
+        console.error('Error cargando países:', error);
+      });
   }, []);
 
+  // Cuando se cambia de país, limpiar ciudad y cargar nuevas ciudades
   useEffect(() => {
     if (!selectedCountry) {
       setCities([]);
@@ -23,64 +29,98 @@ const LocationSelector = ({ onSelect }) => {
       return;
     }
 
-    setSelectedCity(null);
+    setSelectedCity(null); // Limpiar ciudad anterior
+
     axios.get(`${BASE_URL}/cities/${selectedCountry.value}`)
-      .then((res) => setCities(res.data || []))
-      .catch((err) => {
-        console.error('Error cargando ciudades:', err);
+      .then((response) => {
+        setCities(response.data || []);
+      })
+      .catch((error) => {
+        console.error('Error cargando ciudades:', error);
         setCities([]);
       });
   }, [selectedCountry]);
 
+  // Enviar datos seleccionados al componente padre
   useEffect(() => {
     if (selectedCountry && selectedCity) {
       onSelect(selectedCountry.code, selectedCity.label);
     }
-  }, [selectedCity]);
+  }, [selectedCity]); // 🔥 Solo cuando cambia la ciudad (ya se eligió país antes)
 
-  const countryOptions = useMemo(() =>
-    countries.map((c) => ({
-      value: c.id,
-      label: c.name,
-      code: c.code,
-    })), [countries]);
+  const countryOptions = countries.map((country) => ({
+    value: country.id,
+    label: country.name,
+    code: country.code,
+  }));
 
-  const cityOptions = useMemo(() =>
-    cities.map((c) => ({
-      value: c.id,
-      label: c.name,
-    })), [cities]);
+  const cityOptions = cities.map((city) => ({
+    value: city.id,
+    label: city.name,
+  }));
 
   return (
-    <div className="p-4 bg-white rounded shadow-md w-full max-w-md mx-auto">
-      <label className="block mb-2 font-bold">País</label>
-      <Select
-        options={countryOptions}
-        value={selectedCountry}
-        onChange={setSelectedCountry}
-        placeholder="Selecciona un país"
-        className="mb-4"
-        isSearchable
-        isClearable
-      />
+    <div className="p-6 bg-white rounded-lg shadow-xl max-w-lg mx-auto space-y-6">
+      <h2 className="text-2xl font-semibold text-center">Selecciona tu ubicación</h2>
+      
+      <div className="space-y-4">
+        {/* Selección de país */}
+        <div className="flex flex-col">
+          <label className="text-lg font-medium mb-2">País</label>
+          <Select
+            options={countryOptions}
+            value={selectedCountry}
+            onChange={setSelectedCountry}
+            placeholder="Selecciona un país"
+            className="mb-4"
+            isSearchable
+            isClearable
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderColor: '#e2e8f0',
+                borderRadius: '0.375rem',
+                boxShadow: 'none',
+                '&:hover': {
+                  borderColor: '#a0aec0',
+                },
+              }),
+            }}
+          />
+        </div>
 
-      <label className="block mb-2 font-bold">Ciudad</label>
-      <Select
-        options={cityOptions}
-        value={selectedCity}
-        onChange={setSelectedCity}
-        placeholder="Selecciona una ciudad"
-        isDisabled={!selectedCountry}
-        isClearable
-        noOptionsMessage={() =>
-          !selectedCountry
-            ? 'Selecciona un país primero'
-            : 'No hay ciudades disponibles'
-        }
-        isSearchable
-      />
+        {/* Selección de ciudad */}
+        <div className="flex flex-col">
+          <label className="text-lg font-medium mb-2">Ciudad</label>
+          <Select
+            options={cityOptions}
+            value={selectedCity}
+            onChange={setSelectedCity}
+            placeholder="Selecciona una ciudad"
+            isDisabled={!selectedCountry}
+            noOptionsMessage={() =>
+              !selectedCountry
+                ? 'Selecciona un país primero'
+                : 'No hay ciudades disponibles'
+            }
+            isSearchable
+            isClearable
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderColor: '#e2e8f0',
+                borderRadius: '0.375rem',
+                boxShadow: 'none',
+                '&:hover': {
+                  borderColor: '#a0aec0',
+                },
+              }),
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };
 
-export default React.memo(LocationSelector);
+export default LocationSelector;
