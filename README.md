@@ -72,7 +72,7 @@ DB_DATABASE=fitmewise_clima
 DB_USERNAME=root
 DB_PASSWORD=
 
-WEATHER_API_KEY=TU_API_KEY_DE_OPENWEATHERMAP
+OPENWEATHERMAP_API_KEY=TU_API_KEY_DE_OPENWEATHERMAP
 ```
 
 > 🔐 **Nota:** Es necesario crear una cuenta gratuita en OpenWeatherMap para obtener la API key.
@@ -168,7 +168,7 @@ La aplicación estará disponible en: [http://localhost:5173](http://localhost:5
 ## ✨ Créditos
 
 Proyecto realizado como prueba técnica para **Fitmewise**.
-Desarrollado por: [Tu Nombre o Usuario de GitHub]
+Desarrollado por: Miguel Angel Ramírez Mejía
 
 ---
 
