@@ -22,7 +22,7 @@ const App = () => {
       {!isOpen && (
   <button
     onClick={() => setIsOpen(true)}
-    className="fixed top-4 left-4 z-40 bg-blue-600 text-white px-3 py-2 rounded shadow"
+    className="fixed top-4 left-4 z-40 bg-blue-600 text-black px-3 py-2 rounded shadow"
   >
     ☰
   </button>

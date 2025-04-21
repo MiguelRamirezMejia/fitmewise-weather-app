@@ -12,7 +12,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {/* Botón de cerrar visible SIEMPRE */}
         <button
           onClick={() => setIsOpen(false)}
-          className="text-white text-2xl hover:text-gray-400"
+          className="text-black text-2xl hover:text-gray-400"
         >
           &times; {/* X de cerrar */}
         </button>
