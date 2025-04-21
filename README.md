@@ -148,11 +148,11 @@ La aplicación estará disponible en: [http://localhost:5173](http://localhost:5
 ## 📡 Rutas del Backend (API)
 
 | Método | Ruta                           | Descripción                                  |
-|--------|--------------------------------|----------------------------------------------|
-| GET    | /api/paises                   | Retorna la lista de países                   |
-| GET    | /api/ciudades/{pais}          | Retorna la lista de ciudades de un país      |
-| GET    | /api/clima/{ciudad}           | Retorna el clima actual y próximos 5 días    |
-| GET    | /api/rutina/{estado_clima}    | Retorna una rutina sugerida según el clima   |
+|--------|--------------------------------|-----------------------------------------------------------------------------------------|
+| GET    | /api/countries                 | Retorna la lista de países disponibles                                                  |
+| GET    |	/api/cities/{countryId}       | Retorna la lista de ciudades correspondientes al país con ID {countryId}.               |
+| GET    |/api/weather/{city}/{country}   | Retorna el clima actual y la previsión de los próximos 5 días para la ciudad y país.    |
+|________|________________________________|_________________________________________________________________________________________|
 
 ---
 
