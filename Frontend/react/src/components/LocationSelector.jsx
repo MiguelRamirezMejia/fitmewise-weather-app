@@ -61,6 +61,7 @@ const LocationSelector = ({ onSelect }) => {
         placeholder="Selecciona un país"
         className="mb-4"
         isSearchable
+        isClearable
       />
 
       <label className="block mb-2 font-bold">Ciudad</label>
@@ -70,6 +71,7 @@ const LocationSelector = ({ onSelect }) => {
         onChange={setSelectedCity}
         placeholder="Selecciona una ciudad"
         isDisabled={!selectedCountry}
+        isClearable
         noOptionsMessage={() =>
           !selectedCountry
             ? 'Selecciona un país primero'
