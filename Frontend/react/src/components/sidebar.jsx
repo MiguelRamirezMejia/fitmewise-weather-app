@@ -25,11 +25,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               Inicio
             </a>
           </li>
-          <li>
-            <a href="/otra-pagina" className="block p-4 hover:bg-gray-700">
-              Otra Página
-            </a>
-          </li>
         </ul>
       </nav>
     </div>

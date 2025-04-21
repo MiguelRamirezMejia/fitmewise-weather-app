@@ -42,7 +42,7 @@ const WeatherResult = ({ data }) => {
             </p>
             <p className="text-center text-gray-600">{dia.estado}</p>
             <p className="mt-2 text-sm text-blue-600 text-center">
-              <strong>💡 {dia.recomendacion}</strong>
+              <strong>👟🏃 {dia.recomendacion}</strong>
             </p>
           </li>
         ))}
